@@ -2,7 +2,7 @@
 
 Links:
   - API: https://pokeapi.co/  ou   https://pokeapi.co/api/v2/
-  - Youtube: https://youtu.be/jCsrYVIBv9I
+  - Youtube: https://youtu.be/T8h-arF7WEQ
 
 Esse repositório é para a entrega do MVP da Disciplina Aruitetura de Software
 
