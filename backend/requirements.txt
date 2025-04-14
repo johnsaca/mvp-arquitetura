@@ -1,9 +1,0 @@
-Flask
-Flask-Cors
-flask-openapi3
-Flask-SQLAlchemy
-pydantic
-SQLAlchemy
-SQLAlchemy-Utils
-flask-restx
-flask-openapi3[swagger]
