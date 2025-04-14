@@ -16,7 +16,10 @@ Na parte inferior da tela seria possivel ver a PokeDeck do usuário (GET) e no c
 
 ![image](https://github.com/user-attachments/assets/61f2c542-4d42-46af-841c-7ca53b2227a6)
 
-A API Externa foi trabalhada e manejada no arquivo poke-api.ts onde é possivel ver os parametros que foram trabalhados na aplicação
+A API é totalmente gratuíta e não exige qualquer tipo de autenticação nem chave para que possa ser utilizada, é "open source" sendo possivel as pessoas da comunidade contribuir para o enriquecimento da mesma.
+A API Externa foi trabalhada e manejada no arquivo poke-api.ts onde é possivel ver os parametros que foram trabalhados na aplicação.
+
+--
 ![image](https://github.com/user-attachments/assets/3afdfa41-31d7-4379-bec8-ed43c8269e3e)
 
 Para a API local foram feitos os metodos correspondentens e exibidos dentro do Swagger para facilitar a análise.
