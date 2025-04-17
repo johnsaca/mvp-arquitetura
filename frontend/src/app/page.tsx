@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
- 
+
 interface Pokemon {
   id: number;
   name: string;
@@ -31,57 +31,57 @@ interface Pokemon {
   type: string;
   imageUrl: string;
 }
- 
+
 interface PokeDeckItemProps {
   pokemon: Pokemon;
   onRemove: (id: number) => void;
 }
- 
+
 const PokeDeckItem: React.FC<PokeDeckItemProps> = ({ pokemon, onRemove }) => {
   return (
-<Card>
-<CardHeader>
-<CardTitle>{pokemon.name}</CardTitle>
-<CardDescription>Type: {pokemon.type}</CardDescription>
-</CardHeader>
-<CardContent className="flex flex-col items-center">
-<img src={pokemon.imageUrl} alt={pokemon.name} className="max-w-48" />
-<p>ID: {pokemon.id}</p>
-<p>Height: {pokemon.height}</p>
-<p>Weight: {pokemon.weight}</p>
-<AlertDialog>
-<AlertDialogTrigger asChild>
-<Button variant="destructive">Remove from PokeDeck</Button>
-</AlertDialogTrigger>
-<AlertDialogContent>
-<AlertDialogHeader>
-<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-<AlertDialogDescription>
+    <Card>
+      <CardHeader>
+        <CardTitle>{pokemon.name}</CardTitle>
+        <CardDescription>Type: {pokemon.type}</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col items-center">
+        <img src={pokemon.imageUrl} alt={pokemon.name} className="max-w-48" />
+        <p>ID: {pokemon.id}</p>
+        <p>Height: {pokemon.height}</p>
+        <p>Weight: {pokemon.weight}</p>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive">Remove from PokeDeck</Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
                 This action cannot be undone. This will permanently remove{" "}
                 {pokemon.name} from your PokeDeck.
-</AlertDialogDescription>
-</AlertDialogHeader>
-<AlertDialogFooter>
-<AlertDialogCancel>Cancel</AlertDialogCancel>
-<AlertDialogAction
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
                 onClick={async () => {
                   const removed = await removePokemonFromPokeDeck(pokemon.id);
                   if (removed) onRemove(pokemon.id);
                 }}
->
+              >
                 Confirm
-</AlertDialogAction>
-</AlertDialogFooter>
-</AlertDialogContent>
-</AlertDialog>
-</CardContent>
-</Card>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </CardContent>
+    </Card>
   );
 };
- 
+
 async function sendPokemonToPokeDeck(pokemon: Pokemon) {
   try {
-    const response = await fetch("http://localhost:5000/pokemon", {
+    const response = await fetch("http://127.0.0.1:5000/pokemon", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -95,32 +95,35 @@ async function sendPokemonToPokeDeck(pokemon: Pokemon) {
         imageurl: pokemon.imageUrl,
       }),
     });
- 
+
     return response.ok;
   } catch (err) {
     console.error("Erro ao adicionar:", err);
     return false;
   }
 }
- 
-async function removePokemonFromPokeDeck(id: number) {
+
+async function removePokemonFromPokeDeck(idpkm: number) {
   try {
-    const response = await fetch(`http://localhost:5000/pokemon?id=${id}`, {
-      method: "DELETE",
-    });
- 
+    const response = await fetch(
+      `http://127.0.0.1:5000/pokemon?idpkm=${idpkm}`,
+      {
+        method: "DELETE",
+      }
+    );
+
     return response.ok;
   } catch (err) {
     console.error("Erro ao remover:", err);
     return false;
   }
 }
- 
+
 async function loadPokeDeck(): Promise<Pokemon[]> {
   try {
-    const response = await fetch("http://localhost:5000/pokemons");
+    const response = await fetch("http://127.0.0.1:5000/pokemons");
     if (!response.ok) return [];
- 
+
     const data = await response.json();
     return data.pokemons.map((p: any) => ({
       id: p.idpkm,
@@ -135,14 +138,14 @@ async function loadPokeDeck(): Promise<Pokemon[]> {
     return [];
   }
 }
- 
+
 async function searchPokemonByName(term: string): Promise<Pokemon[]> {
   try {
     const response = await fetch(
-      `http://localhost:5000/busca_pokemon?termo=${encodeURIComponent(term)}`
+      `http://127.0.0.1:5000/busca_pokemon?termo=${encodeURIComponent(term)}`
     );
     if (!response.ok) return [];
- 
+
     const data = await response.json();
     return data.pokemons.map((p: any) => ({
       id: p.idpkm,
@@ -157,13 +160,13 @@ async function searchPokemonByName(term: string): Promise<Pokemon[]> {
     return [];
   }
 }
- 
+
 export default function Home() {
   const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
   const [pokeDeck, setPokeDeck] = useState<Pokemon[]>([]);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
- 
+
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
@@ -173,10 +176,10 @@ export default function Home() {
       setPokeDeck(deck);
       setIsLoading(false);
     }
- 
+
     fetchData();
   }, []);
- 
+
   const handleAddToPokeDeck = async (pokemon: Pokemon) => {
     const success = await sendPokemonToPokeDeck(pokemon);
     if (success) {
@@ -193,7 +196,7 @@ export default function Home() {
       });
     }
   };
- 
+
   const handleRemoveFromPokeDeck = (id: number) => {
     setPokeDeck(pokeDeck.filter((pokemon) => pokemon.id !== id));
     toast({
@@ -201,15 +204,15 @@ export default function Home() {
       description: `Pokemon has been removed from your PokeDeck.`,
     });
   };
- 
+
   return (
-<div className="container mx-auto p-4">
-<header className="flex items-center justify-center mb-6">
-<h1 className="text-4xl font-bold text-primary">PokeDeck</h1>
-</header>
- 
+    <div className="container mx-auto p-4">
+      <header className="flex items-center justify-center mb-6">
+        <h1 className="text-4xl font-bold text-primary">PokeDeck</h1>
+      </header>
+
       <div className="mb-6 flex items-center gap-2">
-<Input
+        <Input
           placeholder="Search PokeDeck..."
           onChange={async (e) => {
             const term = e.target.value;
@@ -222,58 +225,60 @@ export default function Home() {
             }
           }}
         />
-</div>
- 
+      </div>
+
       <section className="mb-8">
-<h2 className="text-2xl font-semibold mb-4">Top 20 Pokémon (API externa)</h2>
+        <h2 className="text-2xl font-semibold mb-4">
+          Top 20 Pokémon (API externa)
+        </h2>
         {isLoading ? (
-<p>Loading...</p>
+          <p>Loading...</p>
         ) : (
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {pokemonList.map((pokemon) => (
-<Card
+              <Card
                 key={pokemon.id}
                 className="hover:shadow-md transition-shadow duration-300"
->
-<CardHeader>
-<CardTitle>{pokemon.name}</CardTitle>
-<CardDescription>Type: {pokemon.type}</CardDescription>
-</CardHeader>
-<CardContent className="flex flex-col items-center">
-<img
+              >
+                <CardHeader>
+                  <CardTitle>{pokemon.name}</CardTitle>
+                  <CardDescription>Type: {pokemon.type}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center">
+                  <img
                     src={pokemon.imageUrl}
                     alt={pokemon.name}
                     className="max-w-48"
                   />
-<p>ID: {pokemon.id}</p>
-<p>Height: {pokemon.height}</p>
-<p>Weight: {pokemon.weight}</p>
-<Button onClick={() => handleAddToPokeDeck(pokemon)}>
+                  <p>ID: {pokemon.id}</p>
+                  <p>Height: {pokemon.height}</p>
+                  <p>Weight: {pokemon.weight}</p>
+                  <Button onClick={() => handleAddToPokeDeck(pokemon)}>
                     Add to PokeDeck
-</Button>
-</CardContent>
-</Card>
+                  </Button>
+                </CardContent>
+              </Card>
             ))}
-</div>
+          </div>
         )}
-</section>
- 
+      </section>
+
       <section className="mb-8">
-<h2 className="text-2xl font-semibold mb-4">Your PokeDeck</h2>
+        <h2 className="text-2xl font-semibold mb-4">Your PokeDeck</h2>
         {pokeDeck.length === 0 ? (
-<p>Your PokeDeck is empty.</p>
+          <p>Your PokeDeck is empty.</p>
         ) : (
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {pokeDeck.map((pokemon) => (
-<PokeDeckItem
+              <PokeDeckItem
                 key={pokemon.id}
                 pokemon={pokemon}
                 onRemove={handleRemoveFromPokeDeck}
               />
             ))}
-</div>
+          </div>
         )}
-</section>
-</div>
+      </section>
+    </div>
   );
 }
