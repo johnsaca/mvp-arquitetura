@@ -1,3 +1,4 @@
+from flask import redirect, request
 from flask_openapi3 import OpenAPI, Info, Tag
 from flask import redirect
 from urllib.parse import unquote
@@ -6,10 +7,11 @@ from models import Session, Pokemon
 from logger import logger
 from schemas import *
 from flask_cors import CORS
+from models import session
 
 info = Info(title="API PokeDeck", version="1.0.0")
 app = OpenAPI(__name__, info=info)
-CORS(app)
+CORS(app, origins=["http://localhost:9002"], supports_credentials=True, methods=["GET", "POST", "DELETE", "OPTIONS"], allow_headers=["Content-Type", "Authorization"])
 
 home_tag = Tag(name="Documentação", description="Seleção de documentação: Swagger")
 pokemon_tag = Tag(name="PokeDeck", description="Adição, visualização e remoção de Pokemon a PokeDeck")
@@ -19,36 +21,27 @@ def home():
     """Redireciona para /openapi, tela que permite a escolha do estilo de documentação."""
     return redirect('/openapi')
 
-@app.post('/pokemon', tags=[pokemon_tag],
-          responses={"200": PokemonViewSchema, "409": ErrorSchema, "400": ErrorSchema})
-def add_pokemon(form: PokemonSchema):
+@app.post(
+    "/pokemon",
+    tags=[pokemon_tag],
+    responses={"200": PokemonViewSchema, "409": ErrorSchema, "400": ErrorSchema},
+)
+def add_pokemon():
     """Adiciona um novo Pokemon a PokeDeck
     Retorna uma representação da PokeDeck.
     """
-    print(form)
-    pokemon = Pokemon(
-        nome=form.nome,
-        idpkm=form.idpkm,
-        altura=form.altura,
-        peso=form.peso,
-        tipo=form.tipo,
-        imageurl=form.imageurl
-    )
+    # print(form)
+    #  json = PokemonSchema(**request.json)
+    # try:
+    #     # Validação dos dados via Pydantic
+    #     data = UserSchema(**request.json)
+    # except ValidationError as e:
+    #     return jsonify({'errors': e.errors()}), 400
+    pokemon = Pokemon(**request.json)
+    session.add(pokemon)
+    session.commit()
     logger.info(f"Adicionando pokemon de nome: '{pokemon.nome}'")
-    try:
-        session = Session()
-        session.add(pokemon)
-        session.commit()
-        logger.info("Adicionado pokemon: %s" % pokemon)
-        return apresenta_pokemons(pokemon), 200
-    except IntegrityError as e:
-        error_msg = "Você já possui esse Pokemon"
-        logger.warning(f"Erro ao capturar Pokemon '{pokemon.nome}', {error_msg}")
-        return {"message": error_msg}, 409
-    except Exception as e:
-        error_msg = "Não foi possível salvar novo investimento"
-        logger.warning(f"Erro ao adicionar ação '{pokemon.nome}', {error_msg}")
-        return {"message": error_msg}, 400
+    return apresenta_Pokemon(pokemon), 200
 
 @app.get('/pokemons', tags=[pokemon_tag],
          responses={"200": ListagemPokemonSchema, "404": ErrorSchema})
@@ -57,7 +50,6 @@ def get_pokemons():
     Retorna uma representação da PokeDeck.
     """
     logger.info(f"Coletando Pokemon")
-    session = Session()
     pokemons = session.query(Pokemon).all()
     if not pokemons:
         return {"PokeDeck": []}, 200
@@ -73,7 +65,6 @@ def get_pokemon(query: PokemonBuscaPorIDSchema):
     """
     pokemon_id = query.id
     logger.info(f"Coletando dados sobre o Pokemon #{pokemon_id}")
-    session = Session()
     pokemon = session.query(Pokemon).filter(Pokemon.id == pokemon_id).first()
     if not pokemon:
         error_msg = "Pokemon ainda não capturado"
@@ -89,10 +80,9 @@ def del_pokemon(query: PokemonBuscaPorIDSchema):
     """Deleta um Pokemon a partir do id informado
     Retorna uma mensagem de confirmação da remoção.
     """
-    pokemon_id = query.id  # Use 'id' em vez de 'nome'
+    pokemon_id = query.idpkm
     logger.info(f"Deletando dados sobre Pokemon #{pokemon_id}")
-    session = Session()
-    count = session.query(Pokemon).filter(Pokemon.id == pokemon_id).delete()
+    count = session.query(Pokemon).filter(Pokemon.idpkm == pokemon_id).delete()
     session.commit()
     if count:
         logger.info(f"Deletado o Pokemon #{pokemon_id} da PokeDeck")
@@ -110,7 +100,6 @@ def busca_pokemon(query: PokemonBuscaPorNomeSchema):
     """
     termo = unquote(query.termo)
     logger.info(f"Fazendo a busca por Pokemon com o termo: {termo}")
-    session = Session()
     pokemons = session.query(Pokemon).filter(Pokemon.nome.ilike(f"%{termo}%")).all()
     
     if not pokemons:
