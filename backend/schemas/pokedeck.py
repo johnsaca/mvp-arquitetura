@@ -36,32 +36,32 @@ class PokemonBuscaPorIDSchema(BaseModel):
     """ Define como deve ser a estrutura que representa a busca. Que será
         feita apenas com base no ID do Pokemon.
     """
-    id: int = "1"
+    idpkm: int
 
 
 class ListagemPokemonSchema(BaseModel):
     """ Define como uma listagem de Pokemon será retornada.
     """
-    Pokemons:List[PokemonViewSchema]
+    pokemons:List[PokemonViewSchema]
 
 
-def apresenta_pokemons(Pokemons: List[Pokemon]):
+def apresenta_pokemons(pokemons: List[Pokemon]):
     """ Retorna uma representação do Pokemon seguindo o schema definido em
         ListagemPokemonSchema.
     """
     result = []
-    for Pokemon in Pokemons:
+    for pokemon in pokemons:
         result.append({
-            "id": Pokemon.id,
-            "nome": Pokemon.nome,
-            "idpkm": Pokemon.idpkm,
-            "altura": Pokemon.altura,
-            "peso": Pokemon.peso,
-            "tipo": Pokemon.tipo,
-            "imageurl": Pokemon.imageurl
+            "id": pokemon.id,
+            "nome": pokemon.nome,
+            "idpkm": pokemon.idpkm,
+            "altura": pokemon.altura,
+            "peso": pokemon.peso,
+            "tipo": pokemon.tipo,
+            "imageurl": pokemon.imageurl
         })
 
-    return {"Pokemons": result}
+    return {"pokemons": result}
 
 
 class PokemonViewSchema(BaseModel):
@@ -84,16 +84,16 @@ class PokemonDelSchema(BaseModel):
     id: int
 
 
-def apresenta_Pokemon(Pokemon: Pokemon):
+def apresenta_Pokemon(pokemon: Pokemon):
     """ Retorna uma representação da ação seguindo o schema definido em
         PokemonViewSchema.
     """
     return {
-        "id": Pokemon.id,
-        "nome": Pokemon.nome,
-        "idpkm": Pokemon.idpkm,
-        "altura": Pokemon.altura,
-        "peso": Pokemon.peso,
-        "tipo": Pokemon.tipo,
-        "imageurl": Pokemon.imageurl
+        "id": pokemon.id,
+        "nome": pokemon.nome,
+        "idpkm": pokemon.idpkm,
+        "altura": pokemon.altura,
+        "peso": pokemon.peso,
+        "tipo": pokemon.tipo,
+        "imageurl": pokemon.imageurl
     }
